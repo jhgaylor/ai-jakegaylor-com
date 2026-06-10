@@ -39,10 +39,13 @@ function startHTTPServer(candidateConfig: CandidateConfig, serverFactory: Server
   });
 
   app.get('/llms.txt', (req, res) => {
-    const llmsPath = path.join(process.cwd(), 'public', 'llms.txt');
-    const llmsContent = fs.readFileSync(llmsPath, 'utf8');
+    // Resume markdown is generated from jakegaylor.com/resume.json at boot
+    // (see config.ts); the core-beliefs appendix is static content that
+    // doesn't live in the JSON Resume document.
+    const beliefsPath = path.join(process.cwd(), 'public', 'core-beliefs.txt');
+    const beliefs = fs.readFileSync(beliefsPath, 'utf8');
     res.setHeader('Content-Type', 'text/plain');
-    res.send(llmsContent);
+    res.send(`${candidateConfig.resumeText || ''}\n\n${beliefs}`);
   });
 
   const handlers = statefulHandlers(serverFactory, {

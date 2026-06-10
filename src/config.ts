@@ -2,6 +2,7 @@ import { ServerConfig, CandidateConfig } from '@jhgaylor/candidate-mcp-server';
 import axios from 'axios';
 import pdfParse from 'pdf-parse';
 import * as cheerio from 'cheerio';
+import { jsonResumeToMarkdown } from './resumeMarkdown';
 
 let candidateConfig: CandidateConfig | null = null;
 
@@ -79,7 +80,18 @@ async function getCandidateConfig() {
   // name is a required constructor arg as of candidate-mcp-server 1.3.x.
   candidateConfig = new CandidateConfig('Jake Gaylor');
   candidateConfig.resumeUrl = 'https://jakegaylor.com/resume/';
-  candidateConfig.resumeText = await getTextFromUrl("https://jakegaylor.com/resume.json");
+  // The canonical resume is the JSON Resume document behind jakegaylor.com;
+  // render it as markdown so the MCP resource, the copy-paste block on the
+  // homepage, and /llms.txt all stay current without hand-editing.
+  try {
+    const response = await axios.get('https://jakegaylor.com/resume.json', {
+      headers: { 'User-Agent': 'TextExtractor/1.0' }
+    });
+    candidateConfig.resumeText = jsonResumeToMarkdown(response.data);
+  } catch (error) {
+    console.error('Error fetching resume.json:', error);
+    candidateConfig.resumeText = await getTextFromUrl("https://jakegaylor.com/resume.json");
+  }
   candidateConfig.linkedinUrl = 'https://linkedin.com/in/jhgaylor';
   candidateConfig.githubUrl = 'https://github.com/jhgaylor';
   candidateConfig.websiteUrl = 'https://jakegaylor.com';

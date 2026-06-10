@@ -1,85 +1,11 @@
-<!-- No-MCP fallback: the resume as plain text, one click to copy -->
+<!-- No-MCP fallback: the resume as plain text, one click to copy.
+     resumeText is generated at boot from jakegaylor.com/resume.json
+     (see src/resumeMarkdown.ts), so it tracks the canonical resume. -->
 <div id="quick-resume" class="bg-white rounded-xl border border-gray-100 p-6 scroll-mt-6">
     <h3 class="font-semibold mb-1">No MCP client? Copy this instead</h3>
     <p class="text-sm text-gray-600 mb-4">Paste the text below into any AI assistant to give it my full background &mdash; no tools or special connections needed. Also available at <a href="/llms.txt" class="text-blue-600 hover:underline" target="_blank" rel="noopener"><code>ai.jakegaylor.com/llms.txt</code></a>.</p>
     <div class="relative">
-        <pre id="resume-for-llms" class="overflow-x-auto text-sm bg-gray-900 text-gray-100 p-4 rounded-md whitespace-pre-wrap max-h-96 overflow-y-auto"># Jake Gaylor
-
-## Professional Summary
-Jake Gaylor is an experienced software engineer with nearly 15 years of experience working across the web stack. He specializes in cloud infrastructure, DevOps, and platform engineering with particular expertise in Kubernetes, GitOps, and immutable infrastructure. Jake has strong experience with AWS, containerization technologies, and building CI/CD pipelines.
-
-## Current Position
-- Staff SWE, Office of the CEO at Cloaked Inc (August 2023-Present)
-  - Creating programs to ingest ideas from across the company
-  - Working with executives, product management, and marketing to develop marketable ideas
-  - Documenting ideation processes
-
-## Previous Experience
-- Staff Platform Engineer at Cloaked Inc (September 2022-August 2023)
-  - Migrated software stacks from PaaS providers to AWS EKS
-  - Implemented Cloudflare for third-party masking and control
-  - Established deployment patterns for Kubernetes and edge networks
-  - Migrated AWS account structure to meet compliance requirements (SOC2, ISO 27001/27701)
-
-- Owner/Co-GM at The Onward Store Steakhouse (October 2021-January 2024)
-  - Managed physical infrastructure, HR, legal, vendor relationships
-  - Developed processes for serving fresh food
-
-- Staff SWE in Developer Experience at Inception Health (June 2020-June 2022)
-  - Built AWS infrastructure with CDK packages for HIPAA compliance
-  - Trained teams on serverless environments and gRPC contracts
-
-- Senior Platform Engineer at CyberGRX (December 2018-June 2020)
-  - Led cloud-native CI/CD pipelines for AWS and Kubernetes
-  - Developed custom CoreOS operator for blue/green deployments
-  - Mentored engineers on software deployment best practices
-
-- Senior Cloud Platform Engineer at CardFree (January 2018-December 2018)
-  - Managed PCI-compliant C# installation in AWS
-  - Established software building practices and incident response
-
-- Senior DevOps Engineer at ProtectWise, Inc (August 2016-January 2018)
-  - SRE for large-scale data ingestion platform with thousands of Cassandra nodes
-  - Managed $10M+/year AWS production environment using Infrastructure as Code
-
-- DevOps Engineer at Food Service Warehouse (June 2015-March 2016)
-  - Built Kubernetes clusters on vSphere using CoreOS, fleet, etcd, flannel
-
-- Software Developer at Mississippi State University (June 2010-June 2014)
-  - Created grant proposals for custom software
-  - Supported research initiatives including tracking "human sensors" during natural disasters
-
-## Technical Skills
-- Programming Languages: JavaScript, Python, Bash, Go, Ruby
-- Databases: Neo4j, PostgreSQL, Timestream, MongoDB, Redis, Etcd, Zookeeper, Cassandra, DynamoDB
-- Distributed Systems: Argo Workflows, Kafka, RabbitMQ, AWS IoT
-- Automation: Argo CD, Packer, Terraform, Vagrant, Linux, Chef, GitLab CI, Jenkins, GitHub Actions
-- Orchestration: Kubernetes, Fleet, Docker
-- Monitoring: Prometheus, CloudWatch, Sensu, PagerDuty, Logstash, Kibana, Grafana, Graphite
-
-## Professional Philosophy
-Jake focuses on:
-- Shipping fast and learning fast
-- Delivering MVP in days rather than months
-- Data-driven iterations and continuous user feedback
-- Supercharging teams with best-in-class development workflows
-- Automated testing and deployment
-- Finding product-market fit through data-driven feature development
-
-## Entrepreneurial Background
-Jake describes himself as a "serial entrepreneur" having worked with:
-- SaaS products
-- PaaS solutions
-- Physical products
-- Restaurant management
-
-## Contact Information
-- Phone: 720.453.3994
-- Email: jhgaylor@gmail.com
-- Website: http://jakegaylor.com
-- GitHub: https://github.com/jhgaylor
-- LinkedIn: https://linkedin.com/in/jhgaylor
-- Work Preference: Remote First, Will Travel</pre>
+        <pre id="resume-for-llms" class="overflow-x-auto text-sm bg-gray-900 text-gray-100 p-4 rounded-md whitespace-pre-wrap max-h-96 overflow-y-auto">{{ resumeText }}</pre>
         <button class="copy-btn absolute top-2 right-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1" data-copy-target="resume-for-llms" data-cta="copy-quick-resume">Copy</button>
     </div>
 </div>
