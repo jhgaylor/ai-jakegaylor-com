@@ -1,0 +1,7 @@
+# SOPS config for this repo's encrypted k8s Secrets. Uses the home-cloud
+# cluster's age recipient so Flux's kustomize-controller (decryption:
+# { provider: sops, secretRef: { name: sops-age } }) can decrypt them.
+creation_rules:
+  - path_regex: '\.enc\.yaml$'
+    encrypted_regex: '^(data|stringData)$'
+    age: 'age1gqdqq7uagezyew5uvhylgcasuntmltqx3mdxmwa6es5k393hg3ns4fsyrt'

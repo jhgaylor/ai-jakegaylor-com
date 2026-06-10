@@ -2,6 +2,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
+  # Runtime secrets come from the self-hosted Infisical (magpie). The operator
+  # authenticates with the SOPS-encrypted machine-identity creds and
+  # materializes the `ai-jakegaylor-com-app-secrets` Secret (RESEND_API_KEY)
+  # the Deployment consumes.
+  - ai-jakegaylor-com-infisical-auth.enc.yaml
+  - infisicalsecret.yaml
   - deployment.yaml
   - service.yaml
   - ingressroute.yaml

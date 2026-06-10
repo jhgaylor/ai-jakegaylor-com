@@ -53,8 +53,19 @@ function getServerConfig() {
   const serverConfig = new ServerConfig();
 
   serverConfig.contactEmail = 'jhgaylor@gmail.com';
-  serverConfig.mailgunApiKey = process.env.MAILGUN_API_KEY;
-  serverConfig.mailgunDomain = 'mg.jakegaylor.com';
+
+  if (process.env.RESEND_API_KEY) {
+    // Resend's SMTP interface; the from-address domain must be verified
+    // in the Resend dashboard.
+    serverConfig.smtpHost = 'smtp.resend.com';
+    serverConfig.smtpPort = 465;
+    serverConfig.smtpUser = 'resend';
+    serverConfig.smtpPass = process.env.RESEND_API_KEY;
+    serverConfig.fromAddress = process.env.EMAIL_FROM || 'AI Assistant <ai-assistant@updates.inevitable.fyi>';
+  } else {
+    serverConfig.mailgunApiKey = process.env.MAILGUN_API_KEY;
+    serverConfig.mailgunDomain = 'mg.jakegaylor.com';
+  }
 
   return serverConfig;
 }

@@ -5,6 +5,10 @@ metadata:
   namespace: ai-jakegaylor-com
   labels:
     app: ai-jakegaylor-com
+  annotations:
+    # Restart the pod when the Infisical operator updates
+    # ai-jakegaylor-com-app-secrets (RESEND_API_KEY is read at boot).
+    secrets.infisical.com/auto-reload: "true"
 spec:
   replicas: 1
   selector:
@@ -26,9 +30,16 @@ spec:
           env:
             - name: PORT
               value: "3000"
-            # MAILGUN_API_KEY (contact-email tool) is intentionally absent
-            # until it's wired through Infisical — the server runs fine
-            # without it, only the email tool degrades.
+            - name: EMAIL_FROM
+              # Must be on a domain verified in the Resend dashboard.
+              value: "AI Assistant <ai-assistant@updates.inevitable.fyi>"
+          envFrom:
+            # RESEND_API_KEY (contact_candidate tool) — materialized from
+            # Infisical by the operator (see infisicalsecret.yaml). optional
+            # so the pod still starts before the operator has synced.
+            - secretRef:
+                name: ai-jakegaylor-com-app-secrets
+                optional: true
           ports:
             - containerPort: 3000
           readinessProbe:
