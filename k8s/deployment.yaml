@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-jakegaylor-com
+  namespace: ai-jakegaylor-com
+  labels:
+    app: ai-jakegaylor-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-jakegaylor-com
+  template:
+    metadata:
+      labels:
+        app: ai-jakegaylor-com
+    spec:
+      containers:
+        - name: ai-jakegaylor-com
+          # `:latest` is mutable — the docker.yml workflow rebuilds on
+          # every push to main. imagePullPolicy: Always forces a manifest
+          # check on pod start so `kubectl rollout restart` picks up the
+          # new digest.
+          image: docker.io/jhgaylor/jake-gaylor-com-mcp-server:latest
+          imagePullPolicy: Always
+          env:
+            - name: PORT
+              value: "3000"
+            # MAILGUN_API_KEY (contact-email tool) is intentionally absent
+            # until it's wired through Infisical — the server runs fine
+            # without it, only the email tool degrades.
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            # Startup fetches resume + website text from jakegaylor.com
+            # before the listener comes up, so give it some slack.
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 12
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi

@@ -1,0 +1,40 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ai-jakegaylor-com
+  namespace: ai-jakegaylor-com
+  labels:
+    app: ai-jakegaylor-com
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: "Host(`ai.jakegaylor.com`)"
+      kind: Rule
+      services:
+        - name: ai-jakegaylor-com
+          port: 80
+  tls:
+    secretName: ai-jakegaylor-com-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ai-jakegaylor-com-http
+  namespace: ai-jakegaylor-com
+  labels:
+    app: ai-jakegaylor-com
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: "Host(`ai.jakegaylor.com`)"
+      kind: Rule
+      middlewares:
+        # redirect-https lives in the default namespace; cross-namespace
+        # refs need the namespace qualifier.
+        - name: redirect-https
+          namespace: default
+      services:
+        - name: ai-jakegaylor-com
+          port: 80
