@@ -18,4 +18,4 @@ images:
   # newTag after every image build on main; Flux sees the manifest change
   # and rolls the deployment. Do not edit by hand — CI owns this line.
   - name: docker.io/jhgaylor/jake-gaylor-com-mcp-server
-    newTag: sha-af82310
+    newTag: sha-6cfb79d
