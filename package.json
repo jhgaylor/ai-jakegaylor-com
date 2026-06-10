@@ -18,10 +18,13 @@
     "prepublishOnly": "npm run build"
   },
   "bin": {
-    "me-mcp": "./dist/index.js"
+    "me-mcp": "dist/index.js"
   },
   "author": "Jake Gaylor",
-  "repository": "https://github.com/jhgaylor/ai-jakegaylor-com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhgaylor/ai-jakegaylor-com.git"
+  },
   "license": "MIT",
   "description": "A stateless Model Context Protocol (MCP) server built with Express and TypeScript that gives LLMs information about Jake Gaylor.",
   "dependencies": {
