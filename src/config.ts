@@ -15,8 +15,9 @@ async function getTextFromUrl(url: string) {
       }
     });
 
-    // Determine content type from response headers
-    const contentType = response.headers['content-type'] || '';
+    // Determine content type from response headers. Coerce to string —
+    // axios types the header value as a union (string | number | …).
+    const contentType = String(response.headers['content-type'] || '');
     let extractedText = '';
 
     if (contentType.includes('application/pdf')) {
@@ -75,8 +76,8 @@ async function getCandidateConfig() {
     return candidateConfig;
   }
 
-  candidateConfig = new CandidateConfig();
-  candidateConfig.name = 'Jake Gaylor';
+  // name is a required constructor arg as of candidate-mcp-server 1.3.x.
+  candidateConfig = new CandidateConfig('Jake Gaylor');
   candidateConfig.resumeUrl = 'https://jakegaylor.com/resume/';
   candidateConfig.resumeText = await getTextFromUrl("https://jakegaylor.com/resume.json");
   candidateConfig.linkedinUrl = 'https://linkedin.com/in/jhgaylor';
