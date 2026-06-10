@@ -1,45 +1,29 @@
-<footer class="text-center p-4 text-sm text-gray-500 dark:text-gray-300">
-    <p>MCP Server for {{ name }}</p>
-    <a href="#top" class="hover:text-blue-600 dark:hover:text-blue-400 hover:underline">Back to top ↑</a>
+<footer class="bg-gray-100 border-t border-gray-200">
+  <div class="container mx-auto px-6 py-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="text-gray-600 mb-4 md:mb-0">
+              © <span id="footer-year">2026</span> {{ name }}. All rights reserved.
+          </div>
+          <div class="flex space-x-6">
+              <a href="mailto:jhgaylor@gmail.com" class="text-gray-600 hover:text-blue-600 transition-colors" title="Email">
+                  <i class="fas fa-envelope"></i>
+              </a>
+              <a href="https://github.com/jhgaylor" target="_blank" rel="noopener" class="text-gray-600 hover:text-blue-600 transition-colors" title="GitHub">
+                  <i class="fab fa-github"></i>
+              </a>
+              <a href="https://linkedin.com/in/jhgaylor" target="_blank" rel="noopener" class="text-gray-600 hover:text-blue-600 transition-colors" title="LinkedIn">
+                  <i class="fab fa-linkedin"></i>
+              </a>
+              <a href="https://jakegaylor.com" class="text-gray-600 hover:text-blue-600 transition-colors" title="Website">
+                  <i class="fas fa-globe"></i>
+              </a>
+              <a href="/llms.txt" class="text-gray-600 hover:text-blue-600 transition-colors" title="llms.txt">
+                  <i class="fas fa-robot"></i>
+              </a>
+          </div>
+      </div>
+  </div>
 </footer>
 <script>
-    document.getElementById('toc-toggle').addEventListener('click', () => {
-        const nav = document.getElementById('mobile-nav');
-        const expanded = nav.hidden;
-        nav.hidden = !expanded;
-        document.getElementById('toc-toggle').setAttribute('aria-expanded', expanded);
-    });
-    document.querySelectorAll('.copy-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const code = btn.previousElementSibling.textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                btn.textContent = 'Copied!';
-                setTimeout(() => btn.textContent = 'Copy', 2000);
-            });
-        });
-    });
-    
-    // Dark mode toggle functionality
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-        if (document.documentElement.classList.contains('dark')) {
-            document.documentElement.classList.remove('dark');
-            localStorage.theme = 'light';
-        } else {
-            document.documentElement.classList.add('dark');
-            localStorage.theme = 'dark';
-        }
-    });
-
-    // Function to reset to system preference
-    document.addEventListener('keydown', (e) => {
-        // Alt+Shift+R to reset to system preference
-        if (e.altKey && e.shiftKey && e.key === 'R') {
-            localStorage.removeItem('theme');
-            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-    });
-</script> 
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>

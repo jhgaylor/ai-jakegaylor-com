@@ -1,18 +1,21 @@
-<div class="mb-6">
+<div class="bg-white rounded-xl border border-gray-100 p-6 mb-10">
+    <h3 class="font-semibold mb-1">Client setup</h3>
+    <p class="text-sm text-gray-600 mb-4">Pick your client. Clients without remote MCP support can run the same server locally via the <a href="https://www.npmjs.com/package/@jhgaylor/me-mcp" class="text-blue-600 hover:underline" target="_blank" rel="noopener"><code>@jhgaylor/me-mcp</code></a> npm package.</p>
+
     <!-- Tab Navigation -->
-    <div class="border-b border-gray-200 dark:border-gray-700">
+    <div class="border-b border-gray-200">
         <div class="flex flex-wrap -mb-px text-sm font-medium text-center" id="connectionTabs" role="tablist">
-            <button class="tab-btn inline-block p-4 border-b-2 rounded-t-lg text-gray-800 dark:text-gray-200 mx-1" id="claude-tab" data-target="claude-content" type="button" role="tab" aria-selected="true">Claude</button>
-            <button class="tab-btn inline-block p-4 border-b-2 rounded-t-lg text-gray-800 dark:text-gray-200 mx-1" id="cursor-tab" data-target="cursor-content" type="button" role="tab" aria-selected="false">Cursor</button>
-            <button class="tab-btn inline-block p-4 border-b-2 rounded-t-lg text-gray-800 dark:text-gray-200 mx-1" id="windsurf-tab" data-target="windsurf-content" type="button" role="tab" aria-selected="false">Windsurf</button>
-            <button class="tab-btn inline-block p-4 border-b-2 rounded-t-lg text-gray-800 dark:text-gray-200 mx-1" id="zed-tab" data-target="zed-content" type="button" role="tab" aria-selected="false">Zed</button>
-            <button class="tab-btn inline-block p-4 border-b-2 rounded-t-lg text-gray-800 dark:text-gray-200 mx-1" id="http-tab" data-target="http-content" type="button" role="tab" aria-selected="false">HTTP</button>
-            <button class="tab-btn inline-block p-4 border-b-2 rounded-t-lg text-gray-800 dark:text-gray-200 mx-1" id="typescript-tab" data-target="typescript-content" type="button" role="tab" aria-selected="false">TypeScript</button>
+            <button class="tab-btn inline-block px-4 py-3 border-b-2 rounded-t-lg text-gray-700 mx-1" id="claude-tab" data-target="claude-content" type="button" role="tab" aria-selected="true">Claude</button>
+            <button class="tab-btn inline-block px-4 py-3 border-b-2 rounded-t-lg text-gray-700 mx-1" id="cursor-tab" data-target="cursor-content" type="button" role="tab" aria-selected="false">Cursor</button>
+            <button class="tab-btn inline-block px-4 py-3 border-b-2 rounded-t-lg text-gray-700 mx-1" id="windsurf-tab" data-target="windsurf-content" type="button" role="tab" aria-selected="false">Windsurf</button>
+            <button class="tab-btn inline-block px-4 py-3 border-b-2 rounded-t-lg text-gray-700 mx-1" id="zed-tab" data-target="zed-content" type="button" role="tab" aria-selected="false">Zed</button>
+            <button class="tab-btn inline-block px-4 py-3 border-b-2 rounded-t-lg text-gray-700 mx-1" id="http-tab" data-target="http-content" type="button" role="tab" aria-selected="false">HTTP</button>
+            <button class="tab-btn inline-block px-4 py-3 border-b-2 rounded-t-lg text-gray-700 mx-1" id="typescript-tab" data-target="typescript-content" type="button" role="tab" aria-selected="false">TypeScript</button>
         </div>
     </div>
 
     <!-- Tab Content -->
-    <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-md mt-4">
+    <div class="mt-4">
         <!-- Claude Tab -->
         <div class="tab-content hidden" id="claude-content" role="tabpanel" aria-labelledby="claude-tab">
             <figure class="relative bg-gray-900 text-gray-100 p-4 rounded-md">
@@ -82,12 +85,12 @@
 
         <!-- HTTP Tab -->
         <div class="tab-content hidden" id="http-content" role="tabpanel" aria-labelledby="http-tab">
-            <div class="space-y-2">
+            <div class="space-y-2 text-gray-700">
                 <p>For clients that support direct HTTP connections:</p>
                 <ol class="list-decimal pl-5 space-y-1">
-                    <li>Connect to: <code>https://ai.jakegaylor.com/mcp</code></li>
+                    <li>Connect to: <code class="bg-gray-100 px-1.5 py-0.5 rounded">https://ai.jakegaylor.com/mcp</code></li>
                     <li>Use standard MCP protocol methods to interact with the server</li>
-                    <li>No local installation required - the server is already hosted and ready to use</li>
+                    <li>No local installation required &mdash; the server is already hosted and ready to use</li>
                 </ol>
             </div>
         </div>
@@ -101,7 +104,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 async function connectToMCP() {
   const baseUrl = new URL("https://ai.jakegaylor.com/mcp");
-  
+
   try {
     const client = new Client({ name: 'example-mcp-client', version: '1.0.0' });
     const transport = new StreamableHTTPClientTransport(baseUrl);
@@ -128,21 +131,21 @@ connectToMCP();</code></pre>
         const tabContents = document.querySelectorAll('.tab-content');
 
         // Set the first tab as active by default
-        tabs[0].classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
+        tabs[0].classList.add('border-blue-600', 'text-blue-600', 'active');
         document.getElementById(tabs[0].dataset.target).classList.remove('hidden');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 // Remove active class from all tabs
                 tabs.forEach(t => {
-                    t.classList.remove('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
-                    t.classList.add('border-transparent', 'hover:text-gray-600', 'dark:hover:text-gray-300', 'hover:border-gray-300');
+                    t.classList.remove('border-blue-600', 'text-blue-600', 'active');
+                    t.classList.add('border-transparent', 'hover:text-gray-900', 'hover:border-gray-300');
                     t.setAttribute('aria-selected', 'false');
                 });
 
                 // Add active class to clicked tab
-                tab.classList.add('border-blue-600', 'text-blue-600', 'dark:text-blue-500', 'dark:border-blue-500', 'active');
-                tab.classList.remove('border-transparent', 'hover:text-gray-600', 'dark:hover:text-gray-300', 'hover:border-gray-300');
+                tab.classList.add('border-blue-600', 'text-blue-600', 'active');
+                tab.classList.remove('border-transparent', 'hover:text-gray-900', 'hover:border-gray-300');
                 tab.setAttribute('aria-selected', 'true');
 
                 // Hide all tab contents
@@ -155,4 +158,4 @@ connectToMCP();</code></pre>
             });
         });
     });
-</script> 
+</script>

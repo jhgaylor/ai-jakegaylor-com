@@ -1,46 +1,43 @@
 <!DOCTYPE html>
-<html lang="en" style="font-size: 18px;" class="scroll-pt-20">
+<html lang="en" class="scroll-smooth">
 <head>
     {% include "partials/head.njk" %}
 </head>
-<body id="top" class="bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 antialiased">
-    {% include "partials/nav.njk" %}
+<body id="top" class="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col">
     {% import "partials/collapse.njk" as comp %}
 
-    <main class="container mx-auto px-4 py-8">
-        <article class="prose dark:prose-invert max-w-none">
-            {% include "partials/how-to-use.njk" %}
-            {% include "partials/for-evaluators.njk" %}
-            {% include "partials/mcp-documentation.njk" %}
-        </article>
+    <main class="flex-grow">
+        {% include "partials/hero.njk" %}
+        {% include "partials/capabilities.njk" %}
+        {% include "partials/connect.njk" %}
+        {% include "partials/under-the-hood.njk" %}
+        {% include "partials/cta.njk" %}
     </main>
-    
+
     {% include "partials/footer.njk" %}
-    
+
     <script>
-        // Function to apply theme
-        function applyTheme() {
-            if (localStorage.theme === 'dark' || 
-                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-        
-        // Initial theme application
-        applyTheme();
-        
-        // Watch for system theme changes if no user preference is set
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            if (!('theme' in localStorage)) {
-                if (event.matches) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            }
+        // Copy buttons: copy the nearest [data-copy] target (or previous sibling's text).
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-copy-target');
+                const source = targetId ? document.getElementById(targetId) : btn.previousElementSibling;
+                navigator.clipboard.writeText(source.textContent.trim()).then(() => {
+                    const original = btn.innerHTML;
+                    btn.innerHTML = 'Copied!';
+                    setTimeout(() => btn.innerHTML = original, 2000);
+                });
+            });
         });
+
+        // CTA click tracking, same signal layer as jakegaylor.com.
+        if (typeof posthog !== 'undefined') {
+            document.querySelectorAll('[data-cta]').forEach(el => {
+                el.addEventListener('click', () => {
+                    posthog.capture('cta_click', { cta: el.getAttribute('data-cta') });
+                });
+            });
+        }
     </script>
 </body>
-</html> 
+</html>

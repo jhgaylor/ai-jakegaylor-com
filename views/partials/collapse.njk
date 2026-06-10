@@ -1,8 +1,8 @@
 {% macro collapse(id, title) -%}
-<details id="{{ id }}" class="bg-gray-50 dark:bg-gray-900 p-4 rounded-md my-4 border border-gray-200 dark:border-gray-800">
-  <summary class="font-semibold cursor-pointer text-gray-900 dark:text-gray-100">{{ title | safe }}</summary>
-  <div class="mt-4 text-gray-800 dark:text-gray-200">
+<details id="{{ id }}" class="bg-white p-4 rounded-xl border border-gray-100 hover:border-blue-200 transition">
+  <summary class="font-semibold cursor-pointer text-gray-900">{{ title | safe }}</summary>
+  <div class="mt-4 text-sm text-gray-700">
     {{ caller() }}
   </div>
 </details>
-{%- endmacro %} 
+{%- endmacro %}

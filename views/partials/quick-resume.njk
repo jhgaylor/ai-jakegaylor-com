@@ -1,9 +1,10 @@
-{% call comp.collapse("quick-resume", "<span class=\"text-gray-900 dark:text-gray-100\">Quick Resume Information (copy-paste to your LLM)</span>") %}
-    <div class="mt-4">
-        <p class="mb-3 text-gray-800 dark:text-gray-200">Copy the text below and paste it directly to your AI assistant to give it information about my background:</p>
-        <div class="relative">
-            <pre class="overflow-x-auto text-sm bg-gray-900 text-gray-100 p-4 rounded-md whitespace-pre-wrap max-h-96 overflow-y-auto"># Jake Gaylor
-                
+<!-- No-MCP fallback: the resume as plain text, one click to copy -->
+<div id="quick-resume" class="bg-white rounded-xl border border-gray-100 p-6 scroll-mt-6">
+    <h3 class="font-semibold mb-1">No MCP client? Copy this instead</h3>
+    <p class="text-sm text-gray-600 mb-4">Paste the text below into any AI assistant to give it my full background &mdash; no tools or special connections needed. Also available at <a href="/llms.txt" class="text-blue-600 hover:underline" target="_blank" rel="noopener"><code>ai.jakegaylor.com/llms.txt</code></a>.</p>
+    <div class="relative">
+        <pre id="resume-for-llms" class="overflow-x-auto text-sm bg-gray-900 text-gray-100 p-4 rounded-md whitespace-pre-wrap max-h-96 overflow-y-auto"># Jake Gaylor
+
 ## Professional Summary
 Jake Gaylor is an experienced software engineer with nearly 15 years of experience working across the web stack. He specializes in cloud infrastructure, DevOps, and platform engineering with particular expertise in Kubernetes, GitOps, and immutable infrastructure. Jake has strong experience with AWS, containerization technologies, and building CI/CD pipelines.
 
@@ -79,8 +80,6 @@ Jake describes himself as a "serial entrepreneur" having worked with:
 - GitHub: https://github.com/jhgaylor
 - LinkedIn: https://linkedin.com/in/jhgaylor
 - Work Preference: Remote First, Will Travel</pre>
-            <button class="copy-btn absolute top-2 right-2 text-sm bg-gray-700 hover:bg-gray-600 rounded px-2 py-1">Copy</button>
-        </div>
-        <p class="mt-3 text-xs text-gray-500">You can also access this information at <a href="/llms.txt" class="text-blue-600 hover:underline" target="_blank" rel="noopener">llms.txt</a> or via <code>https://ai.jakegaylor.com/llms.txt</code></p>
+        <button class="copy-btn absolute top-2 right-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1" data-copy-target="resume-for-llms" data-cta="copy-quick-resume">Copy</button>
     </div>
-{% endcall %} 
+</div>

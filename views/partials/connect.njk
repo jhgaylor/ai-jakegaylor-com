@@ -1,0 +1,39 @@
+<!-- ===================== CONNECT: how to use it ===================== -->
+<section id="connect" class="py-16 md:py-20 bg-gray-50 text-gray-900 border-b border-gray-100">
+  <div class="container mx-auto px-6 max-w-4xl">
+    <div class="max-w-3xl mx-auto text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Connect in under a minute</h2>
+      <p class="text-lg text-gray-600">
+        The server is already hosted and running &mdash; nothing to install. Add the endpoint to any
+        MCP-capable client, or use the npm package for clients that only speak stdio.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+      <div class="bg-white rounded-xl p-6 border border-gray-100">
+        <div class="flex items-center gap-2 mb-2">
+          <h3 class="font-semibold">Streamable HTTP</h3>
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-blue-700 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">Recommended</span>
+        </div>
+        <div class="relative">
+          <code id="endpoint-http" class="block bg-gray-900 text-gray-100 text-sm rounded-md px-3 py-2.5 overflow-x-auto whitespace-nowrap pr-16">https://ai.jakegaylor.com/mcp</code>
+          <button class="copy-btn absolute top-1.5 right-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1" data-copy-target="endpoint-http" data-cta="copy-endpoint-http">Copy</button>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl p-6 border border-gray-100">
+        <div class="flex items-center gap-2 mb-2">
+          <h3 class="font-semibold">SSE</h3>
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5">Legacy clients</span>
+        </div>
+        <div class="relative">
+          <code id="endpoint-sse" class="block bg-gray-900 text-gray-100 text-sm rounded-md px-3 py-2.5 overflow-x-auto whitespace-nowrap pr-16">https://ai.jakegaylor.com/sse</code>
+          <button class="copy-btn absolute top-1.5 right-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1" data-copy-target="endpoint-sse" data-cta="copy-endpoint-sse">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    {% include "partials/connection-tabs.njk" %}
+
+    {% include "partials/quick-resume.njk" %}
+  </div>
+</section>

@@ -1,0 +1,66 @@
+<!-- ===================== UNDER THE HOOD: what MCP is, full tool reference ===================== -->
+<section id="under-the-hood" class="py-16 md:py-20 bg-white text-gray-900 border-b border-gray-100">
+  <div class="container mx-auto px-6 max-w-4xl">
+    <div class="max-w-3xl mx-auto text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Under the hood</h2>
+      <p class="text-lg text-gray-600">
+        This site speaks the <a href="https://modelcontextprotocol.io/" class="text-blue-600 hover:underline" target="_blank" rel="noopener">Model Context Protocol</a> &mdash;
+        the open standard that lets AI assistants call external tools and read external data.
+        Anything that speaks MCP can use it. The server itself is open source:
+        <a href="https://www.npmjs.com/package/@jhgaylor/candidate-mcp-server" class="text-blue-600 hover:underline" target="_blank" rel="noopener"><code>@jhgaylor/candidate-mcp-server</code></a>.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 items-start">
+      <div>
+        <h3 class="font-semibold text-lg mb-3">Tools <span class="text-sm font-normal text-gray-500">&mdash; actions your assistant can take</span></h3>
+        <div class="space-y-3">
+          {% call comp.collapse("tool-assess-role-fit", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">assess_role_fit</code>") %}
+            Assesses my fit for a specific role from a job title, full job description, and key requirements.
+          {% endcall %}
+          {% call comp.collapse("tool-generate-interview-questions", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">generate_interview_questions</code>") %}
+            Generates tailored questions by interview type &mdash; phone screen, technical, behavioral, system design, or culture fit &mdash; focused on the areas you choose.
+          {% endcall %}
+          {% call comp.collapse("tool-contact-candidate", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">contact_candidate</code>") %}
+            Sends me an email with your subject, message, and reply address. Your assistant drafts it, you review it, the server delivers it.
+          {% endcall %}
+          {% call comp.collapse("tool-get-resume", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_resume_text</code> / <code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_resume_url</code>") %}
+            Returns my resume as plain text, or a URL to the hosted copy{% if resumeUrl %}: <a href="{{ resumeUrl }}" class="text-blue-600 hover:underline break-all" target="_blank" rel="noopener">{{ resumeUrl }}</a>{% endif %}.
+          {% endcall %}
+          {% call comp.collapse("tool-get-links", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_github_url</code> / <code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_linkedin_url</code> / <code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_website_url</code>") %}
+            Return my profile links:
+            <ul class="list-disc pl-5 mt-2 space-y-1">
+              {% if githubUrl %}<li><a href="{{ githubUrl }}" class="text-blue-600 hover:underline break-all" target="_blank" rel="noopener">{{ githubUrl }}</a></li>{% endif %}
+              {% if linkedinUrl %}<li><a href="{{ linkedinUrl }}" class="text-blue-600 hover:underline break-all" target="_blank" rel="noopener">{{ linkedinUrl }}</a></li>{% endif %}
+              {% if websiteUrl %}<li><a href="{{ websiteUrl }}" class="text-blue-600 hover:underline break-all" target="_blank" rel="noopener">{{ websiteUrl }}</a></li>{% endif %}
+            </ul>
+          {% endcall %}
+          {% call comp.collapse("tool-get-website-text", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_website_text</code>") %}
+            Returns the content of my personal website as text, for assistants that can't browse.
+          {% endcall %}
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-lg mb-3 mt-8 md:mt-0">Resources &amp; prompts <span class="text-sm font-normal text-gray-500">&mdash; data it can read</span></h3>
+        <div class="space-y-3">
+          {% call comp.collapse("resource-resume-text", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">candidate-info://resume-text</code>") %}
+            <div class="whitespace-pre-line max-h-72 overflow-y-auto">{{ resumeText }}</div>
+          {% endcall %}
+          {% call comp.collapse("resource-website-text", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">candidate-info://website-text</code>") %}
+            <div class="whitespace-pre-line max-h-72 overflow-y-auto">{{ websiteText }}</div>
+          {% endcall %}
+          {% call comp.collapse("resource-urls", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">candidate-info://*-url</code>") %}
+            Resume, LinkedIn, GitHub, and website URLs, exposed as individual resources (<code>resume-url</code>, <code>linkedin-url</code>, <code>github-url</code>, <code>website-url</code>).
+          {% endcall %}
+          {% call comp.collapse("prompts", "Built-in prompts") %}
+            Ready-made starting points your MCP client can surface directly:
+            <code>evaluate_job_fit</code>, <code>generate_phone_screen</code>, <code>get_candidate_background</code>,
+            <code>summarize_career_highlights</code>, <code>assess_tech_proficiency</code>,
+            <code>assess_product_collaboration</code>, and <code>assess_startup_fit</code>.
+          {% endcall %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
