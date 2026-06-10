@@ -20,7 +20,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # write: the deploy step below commits the new image tag back to main.
+      contents: write
 
     steps:
       - name: Checkout MCP Server repository checkout
@@ -63,4 +64,25 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max 
+          cache-to: type=gha,mode=max
+
+      # GitOps deploy: pin k8s/kustomization.yaml to this build's immutable
+      # sha-<commit> tag and push. Flux watches this repo, sees the manifest
+      # change, and rolls the deployment. GITHUB_TOKEN pushes don't trigger
+      # workflows, so this can't loop.
+      - name: Bump deployed image tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          TAG="sha-${GITHUB_SHA::7}"
+          sed -i "s/newTag: .*/newTag: ${TAG}/" k8s/kustomization.yaml
+          if git diff --quiet k8s/kustomization.yaml; then
+            echo "Tag already at ${TAG}, nothing to do"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add k8s/kustomization.yaml
+          git commit -m "Deploy ${TAG}"
+          # Tolerate pushes that landed on main while the image was building.
+          git pull --rebase origin main
+          git push origin main 

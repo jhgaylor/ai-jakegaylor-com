@@ -21,12 +21,12 @@ spec:
     spec:
       containers:
         - name: ai-jakegaylor-com
-          # `:latest` is mutable — the docker.yml workflow rebuilds on
-          # every push to main. imagePullPolicy: Always forces a manifest
-          # check on pod start so `kubectl rollout restart` picks up the
-          # new digest.
+          # The tag here is a placeholder — kustomization.yaml pins the
+          # immutable sha-<commit> tag (bumped by the docker.yml workflow),
+          # so every image build changes the manifest and Flux rolls the
+          # pod automatically.
           image: docker.io/jhgaylor/jake-gaylor-com-mcp-server:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: PORT
               value: "3000"
