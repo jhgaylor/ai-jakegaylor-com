@@ -11,6 +11,14 @@ on:
       - main
   workflow_dispatch:
 
+# One run per ref: rapid pushes to main superseded the older build instead of
+# racing it. Without this, two concurrent runs both commit an image-tag bump
+# and the second one hits a rebase conflict on the newTag line (same pattern
+# as jobban's workflow, which never raced).
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   IMAGE_NAME: jake-gaylor-com-mcp-server
   REGISTRY: docker.io
