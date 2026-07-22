@@ -7,7 +7,6 @@ resources:
   # authenticates with the SOPS-encrypted machine-identity creds and
   # materializes the `ai-jakegaylor-com-app-secrets` Secret (RESEND_API_KEY)
   # the Deployment consumes.
-  - ai-jakegaylor-com-infisical-auth.enc.yaml
   - infisicalsecret.yaml
   - deployment.yaml
   - service.yaml
