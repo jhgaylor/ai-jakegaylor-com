@@ -55,6 +55,23 @@ The server supports multiple endpoints:
 
 - **Web (GET `/`)**: Serves a webpage
 - **MCP (POST `/mcp`)**: Provides MCP protocol functionality
+- **A2A agent card (GET `/.well-known/agent-card.json`)**: Agent2Agent discovery document
+- **A2A (POST `/a2a`)**: A2A JSON-RPC endpoint (protocol v1.0, with v0.3 compat)
+
+### A2A Functionality
+
+The server is also an [A2A](https://a2a-protocol.org/) v1.0 agent (with the v0.3
+compatibility layer enabled for older clients). It is deterministic — no LLM
+behind the endpoint. Skills:
+
+- **`about-jake`**: any text message returns the full resume + bio as markdown
+- **`connect-via-mcp`**: messages mentioning MCP return connection instructions
+  for the richer MCP interface
+- **`contact-jake`**: messages starting with `CONTACT:` are delivered to Jake by
+  email (include a reply address in the message)
+
+The public base URL baked into the agent card defaults to
+`https://ai.jakegaylor.com` and can be overridden with `A2A_BASE_URL`.
 
 ### MCP Functionality
 

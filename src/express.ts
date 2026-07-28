@@ -5,11 +5,11 @@ import path from 'path';
 import fs from 'fs';
 import nunjucks from 'nunjucks';
 import { v4 as uuidv4 } from 'uuid';
-import { CandidateConfig } from "@jhgaylor/candidate-mcp-server";
+import { CandidateConfig, ServerConfig } from "@jhgaylor/candidate-mcp-server";
+import { mountA2A } from './a2a';
 
 // TODO: add well known for mcp
-// TODO: maybe add an a2a card?
-function startHTTPServer(candidateConfig: CandidateConfig, serverFactory: ServerFactory, port: number) {
+function startHTTPServer(candidateConfig: CandidateConfig, serverConfig: ServerConfig, serverFactory: ServerFactory, port: number) {
   const app = express();
   app.use(express.json());
   app.use(express.static(path.join(process.cwd(), 'public')));
@@ -60,6 +60,9 @@ function startHTTPServer(candidateConfig: CandidateConfig, serverFactory: Server
   const _sseHandlers = sseHandlers(serverFactory, {});
   app.get('/sse', _sseHandlers.getHandler);
   app.post('/messages', _sseHandlers.postHandler);
+
+  // A2A: agent card at /.well-known/agent-card.json, JSON-RPC endpoint at /a2a
+  mountA2A(app, candidateConfig, serverConfig);
 
   // Start the server
   app.listen(port, () => {

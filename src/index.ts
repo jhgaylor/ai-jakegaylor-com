@@ -19,7 +19,7 @@ async function main() {
   if (selectedTransport === 'http') {
     console.log('Starting HTTP server...');
     const port = process.env.PORT || "3000";
-    startHTTPServer(candidateConfig, serverFactory, parseInt(port));
+    startHTTPServer(candidateConfig, serverConfig, serverFactory, parseInt(port));
   } else {
     // NOTE: this must not log to stdout, otherwise it will break the MCP protocol. console.error is correct.
     console.error('Starting STDIO server...');
