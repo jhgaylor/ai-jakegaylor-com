@@ -8,6 +8,7 @@ const candidatePreferences = {
   role_types: [
     'Staff / Senior Platform Engineer',
     'AI & Agent Infrastructure Engineer',
+    'Site Reliability Engineer (SRE)',
     'Engineering Leader',
   ],
   target_level: 'Senior / Staff / Lead',
