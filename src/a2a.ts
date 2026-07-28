@@ -21,9 +21,9 @@ import { CandidateConfig, ServerConfig } from '@jhgaylor/candidate-mcp-server';
 // contact skill only fires on an explicit "CONTACT:" prefix (or
 // metadata.skill === 'contact-jake') so a stray question can never
 // trigger an outbound email. The about skill answers with an LLM when
-// OPENAI_API_KEY is set, grounded in the resume; without a key — or on
-// any API failure — it falls back to returning the full resume so the
-// skill always honors its contract.
+// an OpenRouter or OpenAI key is set, grounded in the resume; without a
+// key — or on any API failure — it falls back to returning the full
+// resume so the skill always honors its contract.
 const CONTACT_PREFIX = /^\s*contact:/i;
 
 // Prefers OpenRouter (the homelab-wide key pattern — see grocery-aid,

@@ -26,7 +26,7 @@
     "url": "git+https://github.com/jhgaylor/ai-jakegaylor-com.git"
   },
   "license": "MIT",
-  "description": "A stateless Model Context Protocol (MCP) server built with Express and TypeScript that gives LLMs information about Jake Gaylor.",
+  "description": "An Express + TypeScript server that makes Jake Gaylor legible to AI systems: a webpage, llms.txt, an MCP server, and an A2A agent over the same resume.",
   "dependencies": {
     "@a2a-js/sdk": "^1.0.1",
     "@jhgaylor/candidate-mcp-server": "~1.4.1",
