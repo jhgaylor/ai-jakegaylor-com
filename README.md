@@ -24,7 +24,7 @@ The resume content is fetched from `jakegaylor.com/resume.json` at boot and rend
 
 Built on [`@jhgaylor/candidate-mcp-server`](https://github.com/jhgaylor/node-candidate-mcp-server). Tools exposed:
 
-`get_resume_text`, `get_resume_url`, `get_linkedin_url`, `get_github_url`, `get_website_url`, `get_website_text`, `contact_candidate` (emails Jake), `generate_interview_questions`, `assess_role_fit`
+`get_resume_text`, `get_resume_url`, `get_linkedin_url`, `get_github_url`, `get_website_url`, `get_website_text`, `contact_candidate` (emails Jake), `generate_interview_questions`, `assess_role_fit`, `get_candidate_preferences` (structured screening data — see `src/preferences.ts`)
 
 Connect a client to `https://ai.jakegaylor.com/mcp`, or run locally over stdio with `npx @jhgaylor/me-mcp`.
 
@@ -34,7 +34,8 @@ An [A2A](https://a2a-protocol.org/) v1.0 agent built on [`@a2a-js/sdk`](https://
 
 Skills:
 
-- **`about-jake`** — answers questions about Jake's experience using a cheap LLM grounded in the resume and bio. If no LLM key is configured or the call fails, it falls back to returning the complete resume as markdown, so the skill contract holds either way.
+- **`about-jake`** — answers questions about Jake's experience using a cheap LLM grounded in the resume, bio, and screening data. If no LLM key is configured or the call fails, it falls back to returning the complete resume as markdown, so the skill contract holds either way.
+- **`candidate-preferences`** — structured screening data (role types, level, location, relocation, remote, work authorization, comp stance, availability, resume links) returned as a JSON data part plus markdown. Triggered by screening/logistics keywords or `metadata.skill`. Values live in `src/preferences.ts`.
 - **`connect-via-mcp`** — messages mentioning MCP get connection instructions for the richer MCP interface.
 - **`contact-jake`** — messages starting with `CONTACT:` are relayed to Jake by email. Only that explicit prefix (or `metadata.skill = "contact-jake"`) triggers mail.
 
@@ -77,6 +78,7 @@ src/
   ├── index.ts           # Entry point; picks stdio or HTTP transport
   ├── express.ts         # HTTP server: web, MCP, A2A mounting
   ├── a2a.ts             # A2A agent card, executor, skills
+  ├── preferences.ts     # Structured screening data (edit values here)
   ├── stdio.ts           # STDIO transport for MCP
   ├── config.ts          # Server + candidate config; fetches resume at boot
   ├── resumeMarkdown.ts  # JSON Resume → markdown renderer

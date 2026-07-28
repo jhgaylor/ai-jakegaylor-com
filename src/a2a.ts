@@ -15,6 +15,7 @@ import {
 import { agentCardHandler, jsonRpcHandler, UserBuilder } from '@a2a-js/sdk/server/express';
 import { duplicateInterfacesForLegacy } from '@a2a-js/sdk/compat/v0_3';
 import { CandidateConfig, ServerConfig } from '@jhgaylor/candidate-mcp-server';
+import { candidatePreferences } from './preferences';
 
 // Routing is deterministic: static instructions for MCP onboarding, an
 // email relay for contact, and the about skill for everything else. The
@@ -83,6 +84,21 @@ function textPart(value: string, mediaType: string): Part {
   };
 }
 
+function dataPart(value: unknown): Part {
+  return {
+    content: { $case: 'data', value },
+    metadata: undefined,
+    filename: '',
+    mediaType: 'application/json',
+  };
+}
+
+// Deterministic route for screening/logistics questions. Deliberately
+// narrow — location/remote questions phrased naturally go to the LLM,
+// which carries the same preferences in its grounding.
+const PREFERENCES_PATTERN =
+  /\b(preferences?|logistics|screening|salary|compensation|comp range|work authorization|visa|sponsorship)\b/i;
+
 function buildAgentCard(candidateConfig: CandidateConfig): AgentCard {
   const baseUrl = getBaseUrl();
   const name = candidateConfig.name || 'Jake Gaylor';
@@ -143,6 +159,19 @@ function buildAgentCard(candidateConfig: CandidateConfig): AgentCard {
         securityRequirements: [],
       },
       {
+        id: 'candidate-preferences',
+        name: 'Screening & Logistics',
+        description:
+          `Structured screening data as JSON: role types, level, location, relocation, remote preference, ` +
+          `work authorization, compensation stance, availability, and machine-readable resume links ` +
+          `(JSON Resume at ${candidatePreferences.resume_json}). Ask for "preferences" or "screening data".`,
+        tags: ['screening', 'logistics', 'hiring', 'structured-data'],
+        examples: [`What are ${name}'s preferences and screening logistics?`],
+        inputModes: ['text/plain'],
+        outputModes: ['application/json', 'text/markdown'],
+        securityRequirements: [],
+      },
+      {
         id: 'connect-via-mcp',
         name: 'Connect via MCP',
         description:
@@ -186,15 +215,21 @@ class CandidateAgentExecutor implements AgentExecutor {
       .filter(Boolean)
       .join('\n');
 
-    let replyText: string;
-    let mediaType = 'text/markdown';
+    let parts: Part[];
     if (CONTACT_PREFIX.test(text) || incoming?.metadata?.skill === 'contact-jake') {
-      replyText = await this.deliverContactMessage(text);
-      mediaType = 'text/plain';
+      parts = [textPart(await this.deliverContactMessage(text), 'text/plain')];
     } else if (/\bmcp\b/i.test(text) || incoming?.metadata?.skill === 'connect-via-mcp') {
-      replyText = this.mcpInstructions();
+      parts = [textPart(this.mcpInstructions(), 'text/markdown')];
+    } else if (PREFERENCES_PATTERN.test(text) || incoming?.metadata?.skill === 'candidate-preferences') {
+      parts = [
+        dataPart(candidatePreferences),
+        textPart(
+          '```json\n' + JSON.stringify(candidatePreferences, null, 2) + '\n```',
+          'text/markdown',
+        ),
+      ];
     } else {
-      replyText = await this.aboutJake(text);
+      parts = [textPart(await this.aboutJake(text), 'text/markdown')];
     }
 
     const reply: Message = {
@@ -202,7 +237,7 @@ class CandidateAgentExecutor implements AgentExecutor {
       contextId: requestContext.contextId,
       taskId: '',
       role: Role.ROLE_AGENT,
-      parts: [textPart(replyText, mediaType)],
+      parts,
       metadata: undefined,
       extensions: [],
       referenceTaskIds: [],
@@ -258,7 +293,10 @@ class CandidateAgentExecutor implements AgentExecutor {
               `- If the asker seems to want to reach ${name}, tell them to send a message starting with "CONTACT:"`,
               `  including a reply address. For a structured tool interface, mention the MCP endpoint at ${getBaseUrl()}/mcp.`,
               ``,
-              `=== RESUME ===`,
+              `=== SCREENING & LOGISTICS (authoritative for location, relocation, remote, work authorization, comp, availability) ===`,
+              JSON.stringify(candidatePreferences, null, 2),
+              ``,
+              `=== RESUME (machine-readable JSON Resume: ${candidatePreferences.resume_json}) ===`,
               this.candidateConfig.resumeText || '(unavailable)',
               ``,
               `=== BIO / WEBSITE ===`,
@@ -297,6 +335,8 @@ class CandidateAgentExecutor implements AgentExecutor {
       this.candidateConfig.resumeText || 'Resume not available right now.',
       '',
       `---`,
+      `Machine-readable resume (JSON Resume): ${candidatePreferences.resume_json}`,
+      `Structured screening data (location, remote, comp, availability): ask for "preferences".`,
       `To deliver a message to ${name}, send a message starting with "CONTACT:" including a reply address.`,
       `For a richer tool interface (structured resume, links, contact tool), ask about MCP or see ${getBaseUrl()}/mcp.`,
     ].join('\n');
@@ -319,7 +359,9 @@ class CandidateAgentExecutor implements AgentExecutor {
       JSON.stringify({ mcpServers: { 'jake-gaylor': { url: `${baseUrl}/mcp` } } }, null, 2),
       '```',
       '',
-      `Plain-text context is also available at ${baseUrl}/llms.txt.`,
+      `Plain-text context is also available at ${baseUrl}/llms.txt, and the machine-readable resume`,
+      `(JSON Resume) at ${candidatePreferences.resume_json}. The MCP server includes a`,
+      `get_candidate_preferences tool with structured screening data.`,
     ].join('\n');
   }
 
