@@ -13,9 +13,9 @@ const candidatePreferences = {
   target_level: 'Senior / Staff / Lead',
   location: 'Boston, MA, USA',
   relocation: true,
-  remote: 'open to remote or Boston-area onsite; will relocate for the right role',
-  work_authorization: 'authorized to work in the United States',
-  compensation: 'negotiable — share your range',
+  remote: 'yes — open to remote; also open to Boston-area onsite, and will relocate for the right role',
+  work_authorization: 'US citizen — no visa sponsorship required',
+  compensation: '$200,000–$300,000 USD',
   earliest_start: 'ask — send a CONTACT: message with the role details',
   contact:
     'A2A: send a message starting with "CONTACT:" including a reply address. MCP: use the contact_candidate tool.',
