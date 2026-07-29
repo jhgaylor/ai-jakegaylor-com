@@ -42,6 +42,9 @@
           {% call comp.collapse("tool-get-website-text", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_website_text</code>") %}
             Returns the content of my personal website as text, for assistants that can't browse.
           {% endcall %}
+          {% call comp.collapse("tool-get-candidate-preferences", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_candidate_preferences</code>") %}
+            Structured screening data as JSON: target roles, level, location, relocation, remote preference, work authorization, compensation range, availability, and machine-readable resume links.
+          {% endcall %}
         </div>
       </div>
 
@@ -78,6 +81,9 @@
         {% endcall %}
         {% call comp.collapse("a2a-candidate-preferences", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">candidate-preferences</code>") %}
           Structured screening data as JSON: role types, level, location, relocation, remote preference, work authorization, compensation range, and machine-readable resume links.
+        {% endcall %}
+        {% call comp.collapse("a2a-schedule-intro-call", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">schedule-intro-call</code>") %}
+          Ask about availability to get live slots from my calendar, then <code>BOOK: &lt;slot&gt; | &lt;email&gt; | &lt;name&gt;</code> books a 30-minute intro call. Bookings are pending until I confirm; the booker gets the outcome by email. Humans can book at <a href="https://cal.jakegaylor.com/jhgaylor/quick-call" class="text-blue-600 hover:underline" target="_blank" rel="noopener">cal.jakegaylor.com</a>.
         {% endcall %}
         {% call comp.collapse("a2a-contact-jake", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">contact-jake</code>") %}
           Messages starting with <code>CONTACT:</code> are delivered to my inbox by email. Include a reply address.
