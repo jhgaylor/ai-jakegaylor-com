@@ -105,11 +105,19 @@ const PREFERENCES_PATTERN =
 // signals ("JD:" prefix, metadata.skill) or a long text with
 // JD-shaped section language.
 const ROLE_FIT_PATTERN = /^\s*jd:|\bjob description\b|\brole fit\b|\bassess\b[^.]*\bfit\b/i;
-const JD_BODY_HINTS =
-  /\b(requirements|responsibilities|qualifications|what you.ll do|about the role|we.re looking for|we are looking for|who you are)\b/i;
+// Independent JD signals: hiring language, JD section headers, comp
+// language. Two or more → it's a job description, whatever the length
+// (real JDs pasted by agents can be short); one signal needs length too.
+const JD_SIGNALS = [
+  /\b(we.re hiring|we are hiring|hiring an?|looking for an?|seeking an?|founding)\b/i,
+  /\b(requirements|responsibilities|qualifications|what you.ll do|about the role|who you are)\b/i,
+  /\b(compensation|salary|equity)\b|\$\d{2,3}k/i,
+];
 
 function looksLikeJobDescription(text: string): boolean {
-  return ROLE_FIT_PATTERN.test(text) || (text.length > 600 && JD_BODY_HINTS.test(text));
+  if (ROLE_FIT_PATTERN.test(text)) return true;
+  const signals = JD_SIGNALS.filter((p) => p.test(text)).length;
+  return signals >= 2 || (signals >= 1 && text.length > 600);
 }
 
 function buildAgentCard(candidateConfig: CandidateConfig): AgentCard {
