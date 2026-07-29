@@ -45,6 +45,9 @@
           {% call comp.collapse("tool-get-candidate-preferences", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_candidate_preferences</code>") %}
             Structured screening data as JSON: target roles, level, location, relocation, remote preference, work authorization, compensation range, availability, and machine-readable resume links.
           {% endcall %}
+          {% call comp.collapse("tool-scheduling", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">get_availability</code> / <code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">book_intro_call</code>") %}
+            Live open slots from my calendar, and a booking tool for a 30-minute intro call. Bookings are pending until I confirm; the attendee gets the outcome by email. Humans can book at <a href="https://cal.jakegaylor.com/jhgaylor/quick-call" class="text-blue-600 hover:underline" target="_blank" rel="noopener">cal.jakegaylor.com</a>.
+          {% endcall %}
         </div>
       </div>
 

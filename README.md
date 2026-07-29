@@ -24,7 +24,7 @@ The resume content is fetched from `jakegaylor.com/resume.json` at boot and rend
 
 Built on [`@jhgaylor/candidate-mcp-server`](https://github.com/jhgaylor/node-candidate-mcp-server). Tools exposed:
 
-`get_resume_text`, `get_resume_url`, `get_linkedin_url`, `get_github_url`, `get_website_url`, `get_website_text`, `contact_candidate` (emails Jake), `generate_interview_questions`, `assess_role_fit`, `get_candidate_preferences` (structured screening data — see `src/preferences.ts`)
+`get_resume_text`, `get_resume_url`, `get_linkedin_url`, `get_github_url`, `get_website_url`, `get_website_text`, `contact_candidate` (emails Jake), `generate_interview_questions`, `assess_role_fit`, `get_candidate_preferences` (structured screening data — see `src/preferences.ts`), `get_availability` + `book_intro_call` (Cal.com-backed scheduling with the same pending-confirmation and daily-cap guardrails as the A2A skill)
 
 Connect a client to `https://ai.jakegaylor.com/mcp`, or run locally over stdio with `npx @jhgaylor/me-mcp`.
 
