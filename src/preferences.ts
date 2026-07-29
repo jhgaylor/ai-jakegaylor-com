@@ -20,6 +20,8 @@ const candidatePreferences = {
   earliest_start: 'ask — send a CONTACT: message with the role details',
   contact:
     'A2A: send a message starting with "CONTACT:" including a reply address. MCP: use the contact_candidate tool.',
+  book_intro_call:
+    'https://cal.jakegaylor.com/jhgaylor/quick-call — or via A2A: ask for availability, then send BOOK: <slot> | <email> | <name>. Bookings are pending until Jake confirms.',
   resume_json: 'https://jakegaylor.com/resume.json',
   resume_markdown: 'https://ai.jakegaylor.com/llms.txt',
   links: {

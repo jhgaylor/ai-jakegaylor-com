@@ -17,6 +17,7 @@ import { duplicateInterfacesForLegacy } from '@a2a-js/sdk/compat/v0_3';
 import { CandidateConfig, ServerConfig } from '@jhgaylor/candidate-mcp-server';
 import { candidatePreferences } from './preferences';
 import { capture } from './analytics';
+import { getAvailableSlots, createBooking, underDailyCap, BOOKING_PAGE, CAL_TZ, CAL_EVENT_MINUTES, MAX_BOOKINGS_PER_DAY } from './calcom';
 
 // Routing is deterministic: static instructions for MCP onboarding, an
 // email relay for contact, and the about skill for everything else. The
@@ -104,6 +105,12 @@ const PREFERENCES_PATTERN =
 // descriptions routinely contain "compensation"/"salary". Explicit
 // signals ("JD:" prefix, metadata.skill) or a long text with
 // JD-shaped section language.
+// Scheduling: like CONTACT:, the side-effecting half (creating a
+// booking) only fires on an explicit BOOK: prefix. The read-only half
+// (listing slots) triggers on scheduling intent keywords.
+const BOOK_PREFIX = /^\s*book:/i;
+const SCHEDULE_PATTERN = /\b(schedule|scheduling|book a|booking|availability|available (times|slots)|intro call|meet with|calendar)\b/i;
+
 const ROLE_FIT_PATTERN = /^\s*jd:|\bjob description\b|\brole fit\b|\bassess\b[^.]*\bfit\b/i;
 // Independent JD signals: hiring language, JD section headers, comp
 // language. Two or more → it's a job description, whatever the length
@@ -193,6 +200,23 @@ function buildAgentCard(candidateConfig: CandidateConfig): AgentCard {
         securityRequirements: [],
       },
       {
+        id: 'schedule-intro-call',
+        name: 'Schedule an Intro Call',
+        description:
+          `Books a 30-minute intro call on ${name}'s real calendar. Ask about availability to get open slots, ` +
+          `then send \`BOOK: <slot ISO time> | <your email> | <your name> | <optional note>\`. Bookings are ` +
+          `pending until ${name} confirms; the booker receives the outcome by email. Humans can book directly ` +
+          `at the booking page returned with the slots.`,
+        tags: ['scheduling', 'calendar', 'hiring', 'booking'],
+        examples: [
+          `What is ${name}'s availability this week?`,
+          `BOOK: 2026-08-03T15:00:00.000Z | recruiter@acme.com | Jane Smith | Staff platform role`,
+        ],
+        inputModes: ['text/plain'],
+        outputModes: ['application/json', 'text/markdown'],
+        securityRequirements: [],
+      },
+      {
         id: 'assess-role-fit',
         name: 'Assess Role Fit',
         description:
@@ -257,6 +281,10 @@ class CandidateAgentExecutor implements AgentExecutor {
     if (CONTACT_PREFIX.test(text) || incoming?.metadata?.skill === 'contact-jake') {
       route = 'contact-jake';
       parts = [textPart(await this.deliverContactMessage(text), 'text/plain')];
+    } else if (BOOK_PREFIX.test(text)) {
+      const booked = await this.bookSlot(text);
+      route = booked.mode;
+      parts = booked.parts;
     } else if (looksLikeJobDescription(text) || incoming?.metadata?.skill === 'assess-role-fit') {
       const assessment = await this.assessRoleFit(text.replace(/^\s*jd:/i, '').trim());
       route = assessment.mode;
@@ -269,6 +297,10 @@ class CandidateAgentExecutor implements AgentExecutor {
     ) {
       route = 'connect-via-mcp';
       parts = [textPart(this.mcpInstructions(), 'text/markdown')];
+    } else if (SCHEDULE_PATTERN.test(text) || incoming?.metadata?.skill === 'schedule-intro-call') {
+      const listed = await this.listSlots();
+      route = listed.mode;
+      parts = listed.parts;
     } else if (PREFERENCES_PATTERN.test(text) || incoming?.metadata?.skill === 'candidate-preferences') {
       route = 'candidate-preferences';
       parts = [
@@ -457,6 +489,112 @@ class CandidateAgentExecutor implements AgentExecutor {
       `To deliver a message to ${name}, send a message starting with "CONTACT:" including a reply address.`,
       `For a richer tool interface (structured resume, links, contact tool), ask about MCP or see ${getBaseUrl()}/mcp.`,
     ].join('\n');
+  }
+
+  private async listSlots(): Promise<{ parts: Part[]; mode: string }> {
+    const name = this.candidateConfig.name || 'Jake Gaylor';
+    try {
+      const slots = await getAvailableSlots(14);
+      const days = Object.keys(slots);
+      if (days.length === 0) {
+        return {
+          parts: [textPart(`No open slots in the next 14 days. Book directly at ${BOOKING_PAGE} further out, or send a CONTACT: message.`, 'text/plain')],
+          mode: 'schedule-slots-empty',
+        };
+      }
+      const lines = days.slice(0, 10).map((day) => {
+        const times = slots[day];
+        const shown = times.slice(0, 8).map((t) => t).join(', ');
+        const more = times.length > 8 ? ` (+${times.length - 8} more)` : '';
+        return `- **${day}**: ${shown}${more}`;
+      });
+      const text = [
+        `# Book a ${CAL_EVENT_MINUTES}-minute intro call with ${name}`,
+        '',
+        `Open slots for the next two weeks (times are UTC, ISO 8601; ${name}'s timezone is ${CAL_TZ}):`,
+        '',
+        ...lines,
+        '',
+        `To book, send a message in exactly this format:`,
+        '```',
+        `BOOK: <slot ISO time> | <your email> | <your name> | <optional note about the role>`,
+        '```',
+        `Example: \`BOOK: ${slots[days[0]][0]} | recruiter@acme.com | Jane Smith | Staff platform role at Acme\``,
+        '',
+        `Bookings are pending until ${name} confirms — you'll get email confirmation either way. Humans can book at ${BOOKING_PAGE}.`,
+      ].join('\n');
+      return {
+        parts: [dataPart({ slots, booking_format: 'BOOK: <iso-time> | <email> | <name> | <note>', booking_page: BOOKING_PAGE }), textPart(text, 'text/markdown')],
+        mode: 'schedule-slots',
+      };
+    } catch (error) {
+      console.error('A2A slot listing failed:', error);
+      return {
+        parts: [textPart(`Slot lookup is temporarily unavailable. Book directly at ${BOOKING_PAGE}, or send a CONTACT: message.`, 'text/plain')],
+        mode: 'schedule-slots-error',
+      };
+    }
+  }
+
+  private async bookSlot(text: string): Promise<{ parts: Part[]; mode: string }> {
+    const name = this.candidateConfig.name || 'Jake Gaylor';
+    const raw = text.replace(BOOK_PREFIX, '').trim();
+    const fields = raw.split('|').map((f) => f.trim());
+    const [start, email, bookerName, ...noteParts] = fields;
+    const iso = start ? new Date(start) : null;
+    if (!iso || isNaN(iso.getTime()) || !email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !bookerName) {
+      return {
+        parts: [textPart(
+          `Could not parse the booking request. Use exactly:\n\`BOOK: <ISO 8601 start time> | <your email> | <your name> | <optional note>\`\nAsk about availability first to get valid slot times.`,
+          'text/plain',
+        )],
+        mode: 'schedule-book-invalid',
+      };
+    }
+    if (iso.getTime() < Date.now()) {
+      return {
+        parts: [textPart(`That slot is in the past. Ask about availability to get current slots.`, 'text/plain')],
+        mode: 'schedule-book-invalid',
+      };
+    }
+    if (!underDailyCap()) {
+      return {
+        parts: [textPart(
+          `Daily booking limit reached (${MAX_BOOKINGS_PER_DAY}/day through this agent). Book directly at ${BOOKING_PAGE} or try again tomorrow.`,
+          'text/plain',
+        )],
+        mode: 'schedule-book-capped',
+      };
+    }
+    try {
+      const booking = await createBooking({
+        start: iso.toISOString(),
+        email,
+        name: bookerName.slice(0, 120),
+        notes: noteParts.join(' | ').slice(0, 1000) || undefined,
+      });
+      return {
+        parts: [
+          dataPart({ uid: booking.uid, status: booking.status, start: iso.toISOString(), duration_minutes: CAL_EVENT_MINUTES }),
+          textPart(
+            `Booking submitted for ${iso.toISOString()} (${CAL_EVENT_MINUTES} min). Status: **${booking.status}** — ` +
+            `${name} confirms or declines every booking, and ${email} will receive the outcome by email.`,
+            'text/markdown',
+          ),
+        ],
+        mode: 'schedule-book-ok',
+      };
+    } catch (error) {
+      console.error('A2A booking failed:', error);
+      const msg = error instanceof Error ? error.message : String(error);
+      return {
+        parts: [textPart(
+          `Booking failed: ${msg.slice(0, 200)}. The slot may have just been taken — ask about availability for fresh slots, or book at ${BOOKING_PAGE}.`,
+          'text/plain',
+        )],
+        mode: 'schedule-book-error',
+      };
+    }
   }
 
   private mcpInstructions(): string {
