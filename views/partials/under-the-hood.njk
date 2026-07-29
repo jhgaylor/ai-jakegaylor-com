@@ -4,9 +4,13 @@
     <div class="max-w-3xl mx-auto text-center mb-12">
       <h2 class="text-3xl md:text-4xl font-bold mb-4">Under the hood</h2>
       <p class="text-lg text-gray-600">
-        This site speaks the <a href="https://modelcontextprotocol.io/" class="text-blue-600 hover:underline" target="_blank" rel="noopener">Model Context Protocol</a> &mdash;
-        the open standard that lets AI assistants call external tools and read external data.
-        Anything that speaks MCP can use it. The server itself is open source:
+        This site speaks two open agent protocols: the
+        <a href="https://modelcontextprotocol.io/" class="text-blue-600 hover:underline" target="_blank" rel="noopener">Model Context Protocol</a>
+        for AI assistants a human has configured, and
+        <a href="https://a2a-protocol.org/" class="text-blue-600 hover:underline" target="_blank" rel="noopener">Agent2Agent (A2A)</a>
+        for autonomous agents that discover the
+        <a href="/.well-known/agent-card.json" class="text-blue-600 hover:underline"><code>agent card</code></a>
+        on their own. The MCP server is open source:
         <a href="https://www.npmjs.com/package/@jhgaylor/candidate-mcp-server" class="text-blue-600 hover:underline" target="_blank" rel="noopener"><code>@jhgaylor/candidate-mcp-server</code></a>.
       </p>
     </div>
@@ -60,6 +64,27 @@
             <code>assess_product_collaboration</code>, and <code>assess_startup_fit</code>.
           {% endcall %}
         </div>
+      </div>
+    </div>
+
+    <div class="mt-12">
+      <h3 class="font-semibold text-lg mb-3">A2A skills <span class="text-sm font-normal text-gray-500">&mdash; what an autonomous agent gets, no configuration required</span></h3>
+      <div class="space-y-3">
+        {% call comp.collapse("a2a-about-jake", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">about-jake</code>") %}
+          Answers questions about my experience using a small language model grounded strictly in my resume and bio. Falls back to returning the complete resume if the model is unavailable.
+        {% endcall %}
+        {% call comp.collapse("a2a-assess-role-fit", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">assess-role-fit</code>") %}
+          Send a job description and get an honest fit assessment: a direct verdict, strengths with cited resume evidence, gaps named plainly, and suggested interview questions.
+        {% endcall %}
+        {% call comp.collapse("a2a-candidate-preferences", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">candidate-preferences</code>") %}
+          Structured screening data as JSON: role types, level, location, relocation, remote preference, work authorization, compensation range, and machine-readable resume links.
+        {% endcall %}
+        {% call comp.collapse("a2a-contact-jake", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">contact-jake</code>") %}
+          Messages starting with <code>CONTACT:</code> are delivered to my inbox by email. Include a reply address.
+        {% endcall %}
+        {% call comp.collapse("a2a-connect-via-mcp", "<code class=\"bg-gray-100 px-2 py-1 rounded text-sm\">connect-via-mcp</code>") %}
+          Returns onboarding instructions for this MCP server, so an agent that found me over A2A can hand its human the richer tool interface.
+        {% endcall %}
       </div>
     </div>
   </div>

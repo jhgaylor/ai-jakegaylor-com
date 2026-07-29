@@ -5,11 +5,12 @@
       <h2 class="text-3xl md:text-4xl font-bold mb-4">Connect in under a minute</h2>
       <p class="text-lg text-gray-600">
         The server is already hosted and running &mdash; nothing to install. Add the endpoint to any
-        MCP-capable client, or use the npm package for clients that only speak stdio.
+        MCP-capable client, use the npm package for clients that only speak stdio, or let an
+        A2A-capable agent discover the agent card on its own.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
       <div class="bg-white rounded-xl p-6 border border-gray-100">
         <div class="flex items-center gap-2 mb-2">
           <h3 class="font-semibold">Streamable HTTP</h3>
@@ -28,6 +29,16 @@
         <div class="relative">
           <code id="endpoint-sse" class="block bg-gray-900 text-gray-100 text-sm rounded-md px-3 py-2.5 overflow-x-auto whitespace-nowrap pr-16">https://ai.jakegaylor.com/sse</code>
           <button class="copy-btn absolute top-1.5 right-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1" data-copy-target="endpoint-sse" data-cta="copy-endpoint-sse">Copy</button>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl p-6 border border-gray-100">
+        <div class="flex items-center gap-2 mb-2">
+          <h3 class="font-semibold">A2A Agent Card</h3>
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">Agent-to-agent</span>
+        </div>
+        <div class="relative">
+          <code id="endpoint-a2a" class="block bg-gray-900 text-gray-100 text-sm rounded-md px-3 py-2.5 overflow-x-auto whitespace-nowrap pr-16">https://ai.jakegaylor.com/.well-known/agent-card.json</code>
+          <button class="copy-btn absolute top-1.5 right-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded px-2 py-1" data-copy-target="endpoint-a2a" data-cta="copy-endpoint-a2a">Copy</button>
         </div>
       </div>
     </div>

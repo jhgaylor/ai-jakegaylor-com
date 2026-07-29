@@ -261,7 +261,12 @@ class CandidateAgentExecutor implements AgentExecutor {
       const assessment = await this.assessRoleFit(text.replace(/^\s*jd:/i, '').trim());
       route = assessment.mode;
       parts = [textPart(assessment.text, 'text/markdown')];
-    } else if (/\bmcp\b/i.test(text) || incoming?.metadata?.skill === 'connect-via-mcp') {
+    } else if (
+      // Bare "mcp" is too greedy (JDs and questions mention it in passing);
+      // require connection intent nearby, or the explicit skill id.
+      (/\bmcp\b/i.test(text) && /\b(connect|connection|use|using|setup|set up|install|configure|client|endpoint|how do i|how to)\b/i.test(text)) ||
+      incoming?.metadata?.skill === 'connect-via-mcp'
+    ) {
       route = 'connect-via-mcp';
       parts = [textPart(this.mcpInstructions(), 'text/markdown')];
     } else if (PREFERENCES_PATTERN.test(text) || incoming?.metadata?.skill === 'candidate-preferences') {
