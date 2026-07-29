@@ -17,7 +17,8 @@ The resume content is fetched from `jakegaylor.com/resume.json` at boot and rend
 | `GET /llms.txt` | Resume + core beliefs as plain text |
 | `POST /mcp` (+ `GET`/`DELETE`) | MCP over Streamable HTTP |
 | `GET /sse` + `POST /messages` | MCP over legacy SSE transport |
-| `GET /.well-known/agent-card.json` | A2A agent card (v1.0, with v0.3 translation for legacy clients) |
+| `GET /.well-known/agent-card.json` | A2A agent card (v1.0, with v0.3 translation for legacy clients), JWS-signed when a key is configured |
+| `GET /.well-known/jwks.json` | Public keys for verifying the card signature |
 | `POST /a2a` | A2A JSON-RPC endpoint (v1.0 + v0.3 compat) |
 
 ## MCP
@@ -63,6 +64,7 @@ curl -X POST https://ai.jakegaylor.com/a2a \
 | `OPENAI_API_KEY` | LLM for `about-jake` via OpenAI directly (fallback) |
 | `LLM_MODEL` | Model override (default `openai/gpt-5.4-nano` on OpenRouter, `gpt-5.4-nano` on OpenAI) |
 | `A2A_BASE_URL` | Public base URL baked into the agent card (default `https://ai.jakegaylor.com`) |
+| `A2A_SIGNING_KEY_JWK` | Private ES256 JWK (with `kid`) that signs the agent card; unset serves an unsigned card |
 | `POSTHOG_API_KEY` | Server-side agent-traffic analytics (card fetches, MCP/A2A requests, skill routing); analytics are disabled without it |
 | `POSTHOG_HOST` | PostHog endpoint (default `https://us.i.posthog.com`) |
 

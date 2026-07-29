@@ -18,6 +18,7 @@ import { CandidateConfig, ServerConfig } from '@jhgaylor/candidate-mcp-server';
 import { candidatePreferences } from './preferences';
 import { capture } from './analytics';
 import { getAvailableSlots, createBooking, underDailyCap, BOOKING_PAGE, CAL_TZ, CAL_EVENT_MINUTES, MAX_BOOKINGS_PER_DAY } from './calcom';
+import { getSignatureGenerator, getPublicJwks } from './signing';
 
 // Routing is deterministic: static instructions for MCP onboarding, an
 // email relay for contact, and the about skill for everything else. The
@@ -660,11 +661,26 @@ class CandidateAgentExecutor implements AgentExecutor {
 
 function mountA2A(app: express.Express, candidateConfig: CandidateConfig, serverConfig: ServerConfig) {
   const agentCard = buildAgentCard(candidateConfig);
+  // Positional args 4-7 (event bus, push-notification store/sender,
+  // extended-card provider) are unused; the signature generator is the
+  // 8th. Undefined when no signing key is configured — unsigned card.
   const requestHandler = new DefaultRequestHandler(
     agentCard,
     new InMemoryTaskStore(),
     new CandidateAgentExecutor(candidateConfig, serverConfig),
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    getSignatureGenerator(getBaseUrl()),
   );
+
+  const jwks = getPublicJwks();
+  if (jwks) {
+    app.get('/.well-known/jwks.json', (_req, res) => {
+      res.json(jwks);
+    });
+  }
 
   app.use(`/${AGENT_CARD_PATH}`, agentCardHandler({
     agentCardProvider: requestHandler,
