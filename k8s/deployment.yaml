@@ -33,6 +33,11 @@ spec:
             - name: EMAIL_FROM
               # Must be on a domain verified in the Resend dashboard.
               value: "AI Assistant <ai-assistant@updates.inevitable.fyi>"
+            - name: POSTHOG_API_KEY
+              # Same PostHog project as the frontend snippet in
+              # views/partials/head.njk. Project tokens are public by
+              # design (shipped in page source), so plain env is fine.
+              value: "phc_2eJY8Qs3B3H34qrYmBTK1d8GqN2xVsblmaTthTQujAB"
           envFrom:
             # RESEND_API_KEY (contact_candidate tool) — materialized from
             # Infisical by the operator (see infisicalsecret.yaml). optional

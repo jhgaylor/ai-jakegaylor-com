@@ -7,12 +7,45 @@ import nunjucks from 'nunjucks';
 import { v4 as uuidv4 } from 'uuid';
 import { CandidateConfig, ServerConfig } from "@jhgaylor/candidate-mcp-server";
 import { mountA2A } from './a2a';
+import { capture } from './analytics';
 
 // TODO: add well known for mcp
 function startHTTPServer(candidateConfig: CandidateConfig, serverConfig: ServerConfig, serverFactory: ServerFactory, port: number) {
   const app = express();
+  // Behind Traefik — X-Forwarded-For carries the real client IP, which is
+  // the distinct_id for agent-traffic analytics.
+  app.set('trust proxy', true);
   app.use(express.json());
   app.use(express.static(path.join(process.cwd(), 'public')));
+
+  // Agent-traffic analytics. Card and llms.txt fetches are the discovery
+  // signal; MCP and A2A request methods show what connected agents do.
+  // JSON-RPC notifications are protocol chatter, not intent — skip them.
+  app.use((req, res, next) => {
+    const ua = req.get('user-agent') || '';
+    const props = { user_agent: ua, path: req.path, referer: req.get('referer') || '' };
+    if (req.method === 'GET' && req.path === '/.well-known/agent-card.json') {
+      capture(req.ip || 'unknown', 'agent_card_fetched', { ...props, a2a_version: req.get('a2a-version') || '' });
+    } else if (req.method === 'GET' && req.path === '/llms.txt') {
+      capture(req.ip || 'unknown', 'llms_txt_fetched', props);
+    } else if (req.method === 'POST' && (req.path === '/mcp' || req.path === '/messages')) {
+      const method = req.body?.method;
+      if (typeof method === 'string' && !method.startsWith('notifications/')) {
+        capture(req.ip || 'unknown', 'mcp_request', {
+          ...props,
+          rpc_method: method,
+          tool_name: method === 'tools/call' ? req.body?.params?.name : undefined,
+        });
+      }
+    } else if (req.method === 'POST' && req.path === '/a2a') {
+      capture(req.ip || 'unknown', 'a2a_request', {
+        ...props,
+        rpc_method: req.body?.method,
+        a2a_version: req.get('a2a-version') || 'unset (treated as 0.3)',
+      });
+    }
+    next();
+  });
 
   // Configure Nunjucks as the template engine
   nunjucks.configure(path.join(process.cwd(), 'views'), {

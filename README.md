@@ -61,6 +61,8 @@ curl -X POST https://ai.jakegaylor.com/a2a \
 | `OPENAI_API_KEY` | LLM for `about-jake` via OpenAI directly (fallback) |
 | `LLM_MODEL` | Model override (default `openai/gpt-5.4-nano` on OpenRouter, `gpt-5.4-nano` on OpenAI) |
 | `A2A_BASE_URL` | Public base URL baked into the agent card (default `https://ai.jakegaylor.com`) |
+| `POSTHOG_API_KEY` | Server-side agent-traffic analytics (card fetches, MCP/A2A requests, skill routing); analytics are disabled without it |
+| `POSTHOG_HOST` | PostHog endpoint (default `https://us.i.posthog.com`) |
 
 With no email keys set, `contact_candidate`/`contact-jake` report failure gracefully. With no LLM keys set, `about-jake` is fully deterministic.
 

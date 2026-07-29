@@ -16,6 +16,7 @@ import { agentCardHandler, jsonRpcHandler, UserBuilder } from '@a2a-js/sdk/serve
 import { duplicateInterfacesForLegacy } from '@a2a-js/sdk/compat/v0_3';
 import { CandidateConfig, ServerConfig } from '@jhgaylor/candidate-mcp-server';
 import { candidatePreferences } from './preferences';
+import { capture } from './analytics';
 
 // Routing is deterministic: static instructions for MCP onboarding, an
 // email relay for contact, and the about skill for everything else. The
@@ -216,11 +217,15 @@ class CandidateAgentExecutor implements AgentExecutor {
       .join('\n');
 
     let parts: Part[];
+    let route: string;
     if (CONTACT_PREFIX.test(text) || incoming?.metadata?.skill === 'contact-jake') {
+      route = 'contact-jake';
       parts = [textPart(await this.deliverContactMessage(text), 'text/plain')];
     } else if (/\bmcp\b/i.test(text) || incoming?.metadata?.skill === 'connect-via-mcp') {
+      route = 'connect-via-mcp';
       parts = [textPart(this.mcpInstructions(), 'text/markdown')];
     } else if (PREFERENCES_PATTERN.test(text) || incoming?.metadata?.skill === 'candidate-preferences') {
+      route = 'candidate-preferences';
       parts = [
         dataPart(candidatePreferences),
         textPart(
@@ -229,8 +234,15 @@ class CandidateAgentExecutor implements AgentExecutor {
         ),
       ];
     } else {
-      parts = [textPart(await this.aboutJake(text), 'text/markdown')];
+      const about = await this.aboutJake(text);
+      route = about.mode;
+      parts = [textPart(about.text, 'text/markdown')];
     }
+    capture(requestContext.contextId || 'unknown', 'a2a_skill', {
+      route,
+      question: text.slice(0, 500),
+      context_id: requestContext.contextId,
+    });
 
     const reply: Message = {
       messageId: uuidv4(),
@@ -251,15 +263,16 @@ class CandidateAgentExecutor implements AgentExecutor {
   // CancelTask with TaskNotFoundError before this could be reached.
   async cancelTask(_taskId: string, _eventBus: ExecutionEventBus): Promise<void> {}
 
-  private async aboutJake(question: string): Promise<string> {
+  private async aboutJake(question: string): Promise<{ text: string; mode: string }> {
     if (llmEnabled() && question.trim()) {
       try {
-        return await this.answerWithLLM(question);
+        return { text: await this.answerWithLLM(question), mode: 'about-jake-llm' };
       } catch (error) {
         console.error('A2A about-jake LLM call failed, falling back to full resume:', error);
+        return { text: this.fullResume(), mode: 'about-jake-fallback-error' };
       }
     }
-    return this.fullResume();
+    return { text: this.fullResume(), mode: 'about-jake-fallback' };
   }
 
   private async answerWithLLM(question: string): Promise<string> {
