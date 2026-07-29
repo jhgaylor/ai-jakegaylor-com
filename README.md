@@ -36,6 +36,7 @@ Skills:
 
 - **`about-jake`** — answers questions about Jake's experience using a cheap LLM grounded in the resume, bio, and screening data. If no LLM key is configured or the call fails, it falls back to returning the complete resume as markdown, so the skill contract holds either way.
 - **`candidate-preferences`** — structured screening data (role types, level, location, relocation, remote, work authorization, comp stance, availability, resume links) returned as a JSON data part plus markdown. Triggered by screening/logistics keywords or `metadata.skill`. Values live in `src/preferences.ts`.
+- **`assess-role-fit`** — send a job description (`JD:` prefix, or any long JD-shaped text) and get an honest LLM-graded fit assessment: verdict, strengths with resume citations, gaps named plainly, logistics check, and suggested interview questions. Falls back to returning the resume when no LLM is available.
 - **`connect-via-mcp`** — messages mentioning MCP get connection instructions for the richer MCP interface.
 - **`contact-jake`** — messages starting with `CONTACT:` are relayed to Jake by email. Only that explicit prefix (or `metadata.skill = "contact-jake"`) triggers mail.
 
