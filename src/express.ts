@@ -18,6 +18,19 @@ function startHTTPServer(candidateConfig: CandidateConfig, serverConfig: ServerC
   app.use(express.json());
   app.use(express.static(path.join(process.cwd(), 'public')));
 
+  // The ingress chain is Cloudflare Tunnel → cloudflared → Traefik → app,
+  // so the socket peer is always local and req.ip collapses to ::1 for
+  // every caller. Cloudflare stamps the real client in Cf-Connecting-Ip,
+  // and nothing reaches the app except through the tunnel, so it's the
+  // trustworthy identity. Fall down the chain for direct (in-cluster) hits.
+  const callerIp = (req: express.Request): string => {
+    const cf = req.get('cf-connecting-ip');
+    if (cf) return cf;
+    const first = (req.get('x-forwarded-for') || '').split(',')[0].trim();
+    if (first && first !== '::1' && first !== '127.0.0.1') return first;
+    return req.ip || 'unknown';
+  };
+
   // Agent-traffic analytics. Card and llms.txt fetches are the discovery
   // signal; MCP and A2A request methods show what connected agents do.
   // JSON-RPC notifications are protocol chatter, not intent — skip them.
@@ -25,9 +38,9 @@ function startHTTPServer(candidateConfig: CandidateConfig, serverConfig: ServerC
     const ua = req.get('user-agent') || '';
     const props = { user_agent: ua, path: req.path, referer: req.get('referer') || '' };
     if (req.method === 'GET' && req.path === '/.well-known/agent-card.json') {
-      capture(req.ip || 'unknown', 'agent_card_fetched', { ...props, a2a_version: req.get('a2a-version') || '' });
+      capture(callerIp(req), 'agent_card_fetched', { ...props, a2a_version: req.get('a2a-version') || '' });
     } else if (req.method === 'GET' && req.path === '/llms.txt') {
-      capture(req.ip || 'unknown', 'llms_txt_fetched', props);
+      capture(callerIp(req), 'llms_txt_fetched', props);
     } else if (req.method === 'POST' && (req.path === '/mcp' || req.path === '/messages')) {
       const method = req.body?.method;
       if (typeof method === 'string' && !method.startsWith('notifications/')) {
@@ -38,18 +51,20 @@ function startHTTPServer(candidateConfig: CandidateConfig, serverConfig: ServerC
         const rawContext = method === 'tools/call' ? req.body?.params?.arguments?.caller_context : undefined;
         const callerContext = typeof rawContext === 'string' ? rawContext.slice(0, 500) : undefined;
         const toolName = method === 'tools/call' ? req.body?.params?.name : undefined;
-        capture(req.ip || 'unknown', 'mcp_request', {
+        const id = callerIp(req);
+        capture(id, 'mcp_request', {
           ...props,
           rpc_method: method,
           tool_name: toolName,
           caller_context: callerContext,
+          session_id: req.get('mcp-session-id') || undefined,
         });
         if (callerContext) {
-          capture(req.ip || 'unknown', 'caller_identified', { ...props, tool_name: toolName, caller_context: callerContext });
+          capture(id, 'caller_identified', { ...props, tool_name: toolName, caller_context: callerContext });
         }
       }
     } else if (req.method === 'POST' && req.path === '/a2a') {
-      capture(req.ip || 'unknown', 'a2a_request', {
+      capture(callerIp(req), 'a2a_request', {
         ...props,
         rpc_method: req.body?.method,
         a2a_version: req.get('a2a-version') || 'unset (treated as 0.3)',
