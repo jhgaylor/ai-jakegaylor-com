@@ -15,7 +15,8 @@
     "dev": "nodemon --watch src --ext ts --exec 'npm run build && npm start'",
     "dev:web": "nodemon --watch src --ext ts --exec 'npm run build && npm run start:web'",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "stats": "node scripts/agent-stats.mjs"
   },
   "bin": {
     "me-mcp": "dist/index.js"
