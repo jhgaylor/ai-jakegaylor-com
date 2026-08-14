@@ -18,11 +18,13 @@ function startHTTPServer(candidateConfig: CandidateConfig, serverConfig: ServerC
   app.use(express.json());
   app.use(express.static(path.join(process.cwd(), 'public')));
 
-  // The ingress chain is Cloudflare Tunnel → cloudflared → Traefik → app,
-  // so the socket peer is always local and req.ip collapses to ::1 for
-  // every caller. Cloudflare stamps the real client in Cf-Connecting-Ip,
-  // and nothing reaches the app except through the tunnel, so it's the
-  // trustworthy identity. Fall down the chain for direct (in-cluster) hits.
+  // The ingress chain is UniFi port-forward → Lima's user-space port
+  // forwarder → Traefik (hostNetwork in the VM). Lima's forwarder connects
+  // from inside the VM, so the source IP is destroyed as ::1 before Traefik
+  // ever sees it — no header downstream can recover it. Real caller identity
+  // therefore requires Cloudflare in the path (orange-cloud proxy or the
+  // cloudflared tunnel), which stamps Cf-Connecting-Ip; this helper prefers
+  // that header and degrades gracefully until the DNS is flipped.
   const callerIp = (req: express.Request): string => {
     const cf = req.get('cf-connecting-ip');
     if (cf) return cf;
