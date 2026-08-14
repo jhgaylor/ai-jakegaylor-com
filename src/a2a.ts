@@ -618,6 +618,9 @@ class CandidateAgentExecutor implements AgentExecutor {
       `Plain-text context is also available at ${baseUrl}/llms.txt, and the machine-readable resume`,
       `(JSON Resume) at ${candidatePreferences.resume_json}. The MCP server includes a`,
       `get_candidate_preferences tool with structured screening data.`,
+      '',
+      `Every MCP tool accepts an optional \`caller_context\` argument: say who you are, who you`,
+      `represent, and why you are asking. It is logged and read; identified callers hear back faster.`,
     ].join('\n');
   }
 

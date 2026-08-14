@@ -31,11 +31,22 @@ function startHTTPServer(candidateConfig: CandidateConfig, serverConfig: ServerC
     } else if (req.method === 'POST' && (req.path === '/mcp' || req.path === '/messages')) {
       const method = req.body?.method;
       if (typeof method === 'string' && !method.startsWith('notifications/')) {
+        // caller_context is the self-identification field advertised on the
+        // tool schemas, llms.txt, and the A2A onboarding skill. Extracting it
+        // here, from the raw body, means it gets logged even when a caller
+        // passes it to a library tool whose zod schema strips unknown keys.
+        const rawContext = method === 'tools/call' ? req.body?.params?.arguments?.caller_context : undefined;
+        const callerContext = typeof rawContext === 'string' ? rawContext.slice(0, 500) : undefined;
+        const toolName = method === 'tools/call' ? req.body?.params?.name : undefined;
         capture(req.ip || 'unknown', 'mcp_request', {
           ...props,
           rpc_method: method,
-          tool_name: method === 'tools/call' ? req.body?.params?.name : undefined,
+          tool_name: toolName,
+          caller_context: callerContext,
         });
+        if (callerContext) {
+          capture(req.ip || 'unknown', 'caller_identified', { ...props, tool_name: toolName, caller_context: callerContext });
+        }
       }
     } else if (req.method === 'POST' && req.path === '/a2a') {
       capture(req.ip || 'unknown', 'a2a_request', {
@@ -77,8 +88,15 @@ function startHTTPServer(candidateConfig: CandidateConfig, serverConfig: ServerC
     // doesn't live in the JSON Resume document.
     const beliefsPath = path.join(process.cwd(), 'public', 'core-beliefs.txt');
     const beliefs = fs.readFileSync(beliefsPath, 'utf8');
+    const agentNote = [
+      '## For agents',
+      '',
+      'This site is also an MCP server (POST /mcp) and an A2A agent (/.well-known/agent-card.json).',
+      'Every MCP tool accepts an optional caller_context argument: say who you are, who you represent,',
+      'and why you are asking. It is logged and read by Jake. Identified callers hear back faster.',
+    ].join('\n');
     res.setHeader('Content-Type', 'text/plain');
-    res.send(`${candidateConfig.resumeText || ''}\n\n${beliefs}`);
+    res.send(`${candidateConfig.resumeText || ''}\n\n${beliefs}\n\n${agentNote}`);
   });
 
   const handlers = statefulHandlers(serverFactory, {

@@ -16,6 +16,16 @@ async function main() {
   const serverConfig = getServerConfig();
   const candidateConfig = await getCandidateConfig();
 
+  // Optional self-identification on every locally-registered tool. The
+  // express layer logs it server-side from the raw request body, so it also
+  // works when callers pass it to library tools whose schemas strip unknown
+  // keys — advertising it here is what teaches agents the field exists.
+  const callerContextParam = {
+    caller_context: z.string().max(500).optional().describe(
+      'Optional: who you are. Your name or your operator, the company you represent, and why you are asking. This is logged and read; identified callers hear back faster.',
+    ),
+  };
+
   const serverFactory = () => {
     const server = createServer(serverConfig, candidateConfig);
     // Structured screening data (location, relocation, remote, level,
@@ -25,6 +35,7 @@ async function main() {
     server.tool(
       'get_candidate_preferences',
       `Structured screening and logistics data for ${candidateConfig.name}: role types, level, location, relocation, remote preference, work authorization, compensation stance, availability, and machine-readable resume links. Returns JSON.`,
+      callerContextParam,
       async () => ({
         content: [{ type: 'text' as const, text: JSON.stringify(candidatePreferences, null, 2) }],
       }),
@@ -35,6 +46,7 @@ async function main() {
     server.tool(
       'get_availability',
       `Get ${candidateConfig.name}'s open intro-call slots for the next two weeks (${CAL_EVENT_MINUTES}-minute meetings). Returns JSON of ISO 8601 UTC start times grouped by day, plus the human booking page URL. Use book_intro_call to book one.`,
+      callerContextParam,
       async () => {
         try {
           const slots = await getAvailableSlots(14);
@@ -56,6 +68,7 @@ async function main() {
         email: z.string().describe('Attendee email address — receives confirmation or decline'),
         name: z.string().describe('Attendee name'),
         notes: z.string().optional().describe('Optional context: role, company, what to discuss'),
+        ...callerContextParam,
       },
       async (args) => {
         const start = new Date(args.start);
